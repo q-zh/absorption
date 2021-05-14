@@ -18,7 +18,7 @@ VGG-16 from http://cs.stanford.edu/people/jcjohns/fast-neural-style/models/vgg16
 python main.py 
 ```
 
-## Test on DiLiGenT Dataset
+## Testing
 
 ```shell
 # Prepare the test set 
