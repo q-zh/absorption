@@ -20,6 +20,7 @@ python main.py
 
 ## Testing
 
+Please find pre-traind model [here](https://pan.baidu.com/s/1bZCxzWfPBskHV9ev_YHitA) with code: cvpr.
 ```shell
 # Prepare the test set 
 The data folder should include the reflection-contaminated images
