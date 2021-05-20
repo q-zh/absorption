@@ -10,7 +10,7 @@ The paper and supplementatry material can be found from [here](http://ci.idm.pku
 ## Training 
 
 ```shell
-# Prepare the training 
+# Prepare the training data
 Please use the provided matlab code (https://github.com/q-zh/absorption/tree/main/matlab).
 # Download the VGG model
 VGG-16 from http://cs.stanford.edu/people/jcjohns/fast-neural-style/models/vgg16.t7
