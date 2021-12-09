@@ -200,7 +200,7 @@ class Solver(object):
         sip_list = [] 
         psnr_list = []
         with torch.no_grad():
-            for i, (mix, fname) in enumerate(data_loader):
+            for i, (mix, gro, fname) in enumerate(data_loader):
                 mix= mix.to(self.device)
                 fake_out = self.G(mix)
                 fake = self.D(mix, fake_out)
@@ -276,28 +276,41 @@ def get_loader_test(config, data_dir):
 
 
 class Data_Read(data.Dataset):
-    def __init__(self, path_main, transform1, mode):
+    def __init__(self, path_main, transform1, transform2, mode):
 
-        self.path_mixture = path_main
+        self.path_mixture = os.path.join(path_main, mode, 'syn')
+        self.path_ground = os.path.join(path_main, mode, 't')
+        self.alpha_path = os.path.join(path_main, mode, 'AB.txt')
         self.transform1 = transform1
-
-        files = os.listdir(self.path_main)
+        self.transform2 = transform2
+        files = os.listdir(self.path_ground)
         self.num_images = len(files)
-
+        self.files = files
+        lines = [line.rstrip() for line in open(self.alpha_path, 'r')]
+        lines = lines[0:]
+#        random.seed(1234)
+#        random.shuffle(lines)
         self.datapair = []
-        for file in files:
-        
-            self.datapair.append([file])
+        for i, line in enumerate(sorted(lines)):
+            split = line.split()
+            filename = split[0]
+            alpha = float(split[1])
+            self.datapair.append([filename, alpha])
+        self.num_images = len(self.datapair)
 
     def __getitem__(self, index):
-        filename = self.datapair[index]
+        filename, alpha = self.datapair[index]
+        fname = self.files[index]
+        img_gt = Image.open(os.path.join(self.path_ground, filename)).convert('RGB')
         img_mix = Image.open(os.path.join(self.path_mixture, filename)).convert('RGB')
-        
-        return self.transform1(img_mix), filename
+        # img_ref = Image.open(os.path.join(self.path_gradient_ground, filename)).convert('RGB')
+        if alpha > 1:
+            alpha = 1
+
+        return self.transform1(img_mix), self.transform1(img_gt), filename
 
     def __len__(self):
         return self.num_images
-
 
 def main(config):
     if config.test_iter != 0:
@@ -311,7 +324,7 @@ def main(config):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--main_dir', type=str, default='/home/qzheng/nips/dataset/test/ly220/syn/')
+    parser.add_argument('--main_dir', type=str, default='/dataset/test/ly220/syn/')
     parser.add_argument('--batch_size', type=int, default=1, help='mini-batch size')
     parser.add_argument('--save_img', type=int, default=0)
     parser.add_argument('--test_iter', type=int, default=0)
@@ -319,8 +332,4 @@ if __name__ == '__main__':
     config = parser.parse_args()
     print(config)
     main(config)
-
-
-
-
 
